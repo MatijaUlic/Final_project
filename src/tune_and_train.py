@@ -75,6 +75,8 @@ print(f"Recall:       {recall:.4f}")
 print(f"F1-score:     {f1:.4f}")
 print(f"ROC AUC:      {roc_auc:.4f}")
 print(f"PR AUC:       {pr_auc:.4f}")
+print("\nClass ratios:")
+print(df["Delay"].value_counts(normalize=True).rename("proportion"))
 
 with mlflow.start_run():
     mlflow.log_params(best_params)
