@@ -1,3 +1,19 @@
+# MLflow tracking directory
 mlruns/
+
+# Python caches
 __pycache__/
+*.py[cod]
+
+# Jupyter checkpoints
 .ipynb_checkpoints/
+
+# Trained model artifacts
+models/*.pkl
+
+# Batch prediction outputs
+batch_prediction_dataset/results.csv
+batch_prediction_dataset/report.txt
+
+# Common OS files
+.DS_Store
