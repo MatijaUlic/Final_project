@@ -13,22 +13,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.10
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-    - name: Run tests
-      run: pytest
+      - name: Run tests
+        run: pytest
 
-    - name: Train & tune model
-      run: python -m src.tune_and_train
+      # Optional: Code quality checks
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 .
 
-    - name: Run batch prediction
-      run: python -m src.predict
+      - name: Train & tune model
+        run: python -m src.tune_and_train
+
+      - name: Run batch prediction
+        run: python -m src.predict
+
+      # ✅ Artifact collection
+      - name: Upload trained model
+        uses: actions/upload-artifact@v3
+        with:
+          name: trained-model
+          path: models/best_model.pkl
+
+      - name: Upload batch results
+        uses: actions/upload-artifact@v3
+        with:
+          name: batch-prediction-results
+          path: batch_prediction_dataset/results.csv
+
+      - name: Upload prediction report
+        uses: actions/upload-artifact@v3
+        with:
+          name: batch-prediction-report
+          path: batch_prediction_dataset/report.txt
