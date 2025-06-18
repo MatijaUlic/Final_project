@@ -25,9 +25,13 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 
 
 def main():
-    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000"))
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+    mlflow.set_tracking_uri(tracking_uri)
 
-    # Configurable CV settings via environment variables
+    # Disable MLflow logging on GitHub Actions if no real server
+    if "GITHUB_ACTIONS" in os.environ and tracking_uri == "http://127.0.0.1:5000":
+        os.environ["DISABLE_MLFLOW"] = "1"
+
     CV_FOLDS = int(os.getenv("CV_FOLDS", "5"))
     SEARCH_CV = int(os.getenv("SEARCH_CV", "3"))
 
@@ -88,15 +92,16 @@ def main():
     print("\nClass ratios:")
     print(df["Delay"].value_counts(normalize=True).rename("proportion"))
 
-    with mlflow.start_run():
-        mlflow.log_params(best_params)
-        mlflow.log_metric("accuracy", test_acc)
-        mlflow.log_metric("precision", precision)
-        mlflow.log_metric("recall", recall)
-        mlflow.log_metric("f1_score", f1)
-        mlflow.log_metric("roc_auc", roc_auc)
-        mlflow.log_metric("pr_auc", pr_auc)
-        mlflow.sklearn.log_model(best_model, "model")
+    if os.getenv("DISABLE_MLFLOW") != "1":
+        with mlflow.start_run():
+            mlflow.log_params(best_params)
+            mlflow.log_metric("accuracy", test_acc)
+            mlflow.log_metric("precision", precision)
+            mlflow.log_metric("recall", recall)
+            mlflow.log_metric("f1_score", f1)
+            mlflow.log_metric("roc_auc", roc_auc)
+            mlflow.log_metric("pr_auc", pr_auc)
+            mlflow.sklearn.log_model(best_model, "model")
 
     joblib.dump(best_model, "models/best_model.pkl")
     print("All metrics logged and model saved.")
