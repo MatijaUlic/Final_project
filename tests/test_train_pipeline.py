@@ -4,6 +4,8 @@ import pandas as pd
 import joblib
 import subprocess
 import sys
+import os
+os.environ["MLFLOW_TRACKING_URI"] = "file:///tmp/mlruns"
 
 def test_tune_and_train_pipeline(tmp_path):
     # 1. Create a dummy dataset with 10 rows

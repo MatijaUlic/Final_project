@@ -5,6 +5,10 @@ import pandas as pd
 import subprocess
 import sys
 
+
+os.environ["MLFLOW_TRACKING_URI"] = "file:///tmp/mlruns"
+
+
 def test_main_flow(tmp_path):
     # 1. Prepare training dataset
     data_dir = tmp_path / "data"
