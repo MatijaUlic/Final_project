@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/upload-artifact@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -43,19 +43,19 @@ jobs:
         run: python -m src.predict
 
       - name: Upload trained model
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trained-model
           path: models/best_model.pkl
 
       - name: Upload batch results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: batch-prediction-results
           path: batch_prediction_dataset/results.csv
 
       - name: Upload prediction report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: batch-prediction-report
           path: batch_prediction_dataset/report.txt
