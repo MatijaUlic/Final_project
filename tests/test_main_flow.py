@@ -13,22 +13,21 @@ def test_main_flow(tmp_path):
     # 1. Prepare training dataset
     data_dir = tmp_path / "data"
     data_dir.mkdir()
-    df = pd.DataFrame({
-        "Category": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
-        "Numeric": list(range(1, 11)),
-        "Delay":   [0, 1] * 5,
-    })
+    df = pd.DataFrame(
+        {
+            "Category": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+            "Numeric": list(range(1, 11)),
+            "Delay": [0, 1] * 5,
+        }
+    )
     (data_dir / "Airlines.csv").write_text(df.to_csv(index=False))
 
     # 2. Prepare batch prediction input
     batch_dir = tmp_path / "batch_prediction_dataset"
     batch_dir.mkdir()
-    pd.DataFrame({
-        "id": [1, 2],
-        "Flight": ["X", "Y"],
-        "Category": ["A", "B"],
-        "Numeric": [0, 1]
-    }).to_csv(batch_dir / "dataset.csv", index=False)
+    pd.DataFrame(
+        {"id": [1, 2], "Flight": ["X", "Y"], "Category": ["A", "B"], "Numeric": [0, 1]}
+    ).to_csv(batch_dir / "dataset.csv", index=False)
 
     # 3. Set environment variables so scripts are found and folds are small
     env = os.environ.copy()
@@ -42,7 +41,7 @@ def test_main_flow(tmp_path):
         cwd=tmp_path,
         env=env,
         capture_output=True,
-        text=True
+        text=True,
     )
     # Ensure the main completed successfully
     assert result.returncode == 0, result.stderr

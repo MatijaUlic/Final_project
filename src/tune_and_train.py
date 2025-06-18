@@ -5,15 +5,24 @@ import pandas as pd
 import joblib
 import mlflow
 import mlflow.sklearn
-from sklearn.model_selection import RandomizedSearchCV, train_test_split, cross_val_score
+from sklearn.model_selection import (
+    RandomizedSearchCV,
+    train_test_split,
+    cross_val_score,
+)
 from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score,
-    f1_score, roc_auc_score, average_precision_score
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+    average_precision_score,
 )
 from xgboost import XGBClassifier
 from src.preprocess import preprocess_data
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
 
 def main():
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000"))
@@ -31,7 +40,9 @@ def main():
     )
 
     base_model = XGBClassifier(eval_metric="logloss", random_state=42)
-    cv_scores = cross_val_score(base_model, X_train, y_train, cv=CV_FOLDS, scoring="accuracy")
+    cv_scores = cross_val_score(
+        base_model, X_train, y_train, cv=CV_FOLDS, scoring="accuracy"
+    )
     print(f"Baseline CV accuracy: {cv_scores.mean():.4f} ± {cv_scores.std():.4f}")
 
     param_dist = {
@@ -40,7 +51,7 @@ def main():
         "learning_rate": [0.05, 0.1, 0.2],
         "scale_pos_weight": [1, 3, 5, 7],
         "subsample": [0.7, 0.8, 1.0],
-        "colsample_bytree": [0.7, 0.8, 1.0]
+        "colsample_bytree": [0.7, 0.8, 1.0],
     }
 
     search = RandomizedSearchCV(
@@ -50,7 +61,7 @@ def main():
         scoring="accuracy",
         cv=SEARCH_CV,
         verbose=1,
-        random_state=42
+        random_state=42,
     )
 
     search.fit(X_train, y_train)

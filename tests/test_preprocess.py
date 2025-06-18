@@ -4,14 +4,17 @@ import pandas as pd
 import pytest
 from src.preprocess import preprocess_data
 
+
 def test_preprocess_training_mode():
-    df = pd.DataFrame({
-        "id": [1, 2],
-        "Flight": ["AA", "BB"],
-        "Category": ["X", "Y"],
-        "Numeric": [10.0, 20.0],
-        "Delay": [0, 1]
-    })
+    df = pd.DataFrame(
+        {
+            "id": [1, 2],
+            "Flight": ["AA", "BB"],
+            "Category": ["X", "Y"],
+            "Numeric": [10.0, 20.0],
+            "Delay": [0, 1],
+        }
+    )
     X, y = preprocess_data(df, training=True)
 
     # Delay should be removed from features
@@ -28,12 +31,11 @@ def test_preprocess_training_mode():
     # Target vector correct
     assert list(y) == [0, 1]
 
+
 def test_preprocess_inference_mode():
-    df = pd.DataFrame({
-        "Flight": ["AA", "BB"],
-        "Category": ["X", "Y"],
-        "Numeric": [1.5, 2.5]
-    })
+    df = pd.DataFrame(
+        {"Flight": ["AA", "BB"], "Category": ["X", "Y"], "Numeric": [1.5, 2.5]}
+    )
     X = preprocess_data(df, training=False)
 
     # Should return only features with no dropped or missing columns
