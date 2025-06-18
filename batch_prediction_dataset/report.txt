@@ -1,4 +1,4 @@
  Batch Prediction Report
 Total flights: 17
-On Time: 12 (70.6%)
-Delayed: 5 (29.4%)
+On Time: 16 (94.1%)
+Delayed: 1 (5.9%)

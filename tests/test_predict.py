@@ -2,13 +2,13 @@
 
 import os
 import sys
-# Make sure tests can find src directory
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
-
 import pandas as pd
 import joblib
 from sklearn.dummy import DummyClassifier
 from src.predict import main as predict_main
+# Make sure tests can find src directory
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
+
 
 def test_predict_creates_outputs(tmp_path, monkeypatch, capsys):
     models_dir = tmp_path / "models"
@@ -20,12 +20,9 @@ def test_predict_creates_outputs(tmp_path, monkeypatch, capsys):
     dummy.fit([[0], [1]], [0, 1])
     joblib.dump(dummy, models_dir / "best_model.pkl")
 
-    df_in = pd.DataFrame({
-        "id": [1, 2],
-        "Flight": ["AA", "BB"],
-        "Feature1": [0, 1],
-        "Feature2": [1, 0]
-    })
+    df_in = pd.DataFrame(
+        {"id": [1, 2], "Flight": ["AA", "BB"], "Feature1": [0, 1], "Feature2": [1, 0]}
+    )
     df_in.to_csv(batch_dir / "dataset.csv", index=False)
 
     monkeypatch.chdir(tmp_path)

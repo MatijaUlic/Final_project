@@ -4,14 +4,20 @@ import pandas as pd
 import joblib
 import subprocess
 import sys
+import os
+
+os.environ["MLFLOW_TRACKING_URI"] = "file:///tmp/mlruns"
+
 
 def test_tune_and_train_pipeline(tmp_path):
     # 1. Create a dummy dataset with 10 rows
-    df = pd.DataFrame({
-        "Category": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
-        "Numeric": list(range(1, 11)),
-        "Delay":   [0, 1] * 5,
-    })
+    df = pd.DataFrame(
+        {
+            "Category": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+            "Numeric": list(range(1, 11)),
+            "Delay": [0, 1] * 5,
+        }
+    )
     data_dir = tmp_path / "data"
     data_dir.mkdir()
     (data_dir / "Airlines.csv").write_text(df.to_csv(index=False))
@@ -24,10 +30,7 @@ def test_tune_and_train_pipeline(tmp_path):
 
     # 3. Execute the training/tuning script
     subprocess.run(
-        [sys.executable, "-m", "src.tune_and_train"],
-        cwd=tmp_path,
-        env=env,
-        check=True
+        [sys.executable, "-m", "src.tune_and_train"], cwd=tmp_path, env=env, check=True
     )
 
     # 4. Verify the model artifact exists

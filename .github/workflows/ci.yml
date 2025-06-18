@@ -1,58 +1,64 @@
-name: CI Pipeline
+name: CI + CD Pipeline
 
 on:
   push:
     branches:
-      - feature/full-pipeline
+      - main
+      - feature/mlflow-cd
   pull_request:
     branches:
-      - feature/full-pipeline
+      - main
+      - feature/mlflow-cd
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: 3.11
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8
 
       - name: Run tests
-        run: pytest
-
-      # Optional: Code quality checks
-      - name: Lint with flake8
         run: |
-          pip install flake8
-          flake8 .
+          PYTHONPATH=. pytest -q --disable-warnings
+
+      - name: Lint with flake8
+        run: flake8 .
+
+      - name: Set MLFLOW_TRACKING_URI env
+        run: echo "MLFLOW_TRACKING_URI=http://127.0.0.1:5000" >> $GITHUB_ENV
 
       - name: Train & tune model
-        run: python -m src.tune_and_train
+        run: PYTHONPATH=. python -m src.tune_and_train
 
       - name: Run batch prediction
-        run: python -m src.predict
+        run: PYTHONPATH=. python -m src.predict
 
-      # ✅ Artifact collection
       - name: Upload trained model
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trained-model
           path: models/best_model.pkl
 
       - name: Upload batch results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: batch-prediction-results
           path: batch_prediction_dataset/results.csv
 
       - name: Upload prediction report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: batch-prediction-report
           path: batch_prediction_dataset/report.txt
