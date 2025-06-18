@@ -1,7 +1,6 @@
 # tests/test_preprocess.py
 
 import pandas as pd
-import pytest
 from src.preprocess import preprocess_data
 
 
