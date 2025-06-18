@@ -5,32 +5,25 @@ import pandas as pd
 import joblib
 import mlflow
 import mlflow.sklearn
-from sklearn.model_selection import (
-    RandomizedSearchCV,
-    train_test_split,
-    cross_val_score,
-)
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
-    average_precision_score,
-)
+from sklearn.model_selection import RandomizedSearchCV, train_test_split, cross_val_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, average_precision_score
 from xgboost import XGBClassifier
 from src.preprocess import preprocess_data
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-
 def main():
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
     mlflow.set_tracking_uri(tracking_uri)
 
-    # Disable MLflow logging on GitHub Actions if no real server
+    # Skip model logging on GitHub Actions if using local URI
     if "GITHUB_ACTIONS" in os.environ and tracking_uri == "http://127.0.0.1:5000":
         os.environ["DISABLE_MLFLOW"] = "1"
+
+    # Disable registry logic that causes 404
+    os.environ["MLFLOW_ENABLE_MODEL_REGISTRATION_API"] = "false"
+
+    print("Starting hyperparameter tuning & training...")
 
     CV_FOLDS = int(os.getenv("CV_FOLDS", "5"))
     SEARCH_CV = int(os.getenv("SEARCH_CV", "3"))
@@ -39,14 +32,10 @@ def main():
 
     df = pd.read_csv("data/Airlines.csv")
     X, y = preprocess_data(df)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     base_model = XGBClassifier(eval_metric="logloss", random_state=42)
-    cv_scores = cross_val_score(
-        base_model, X_train, y_train, cv=CV_FOLDS, scoring="accuracy"
-    )
+    cv_scores = cross_val_score(base_model, X_train, y_train, cv=CV_FOLDS, scoring="accuracy")
     print(f"Baseline CV accuracy: {cv_scores.mean():.4f} ± {cv_scores.std():.4f}")
 
     param_dist = {
@@ -61,7 +50,7 @@ def main():
     search = RandomizedSearchCV(
         XGBClassifier(eval_metric="logloss", random_state=42),
         param_distributions=param_dist,
-        n_iter=20,
+        n_iter= 20,
         scoring="accuracy",
         cv=SEARCH_CV,
         verbose=1,
@@ -101,11 +90,14 @@ def main():
             mlflow.log_metric("f1_score", f1)
             mlflow.log_metric("roc_auc", roc_auc)
             mlflow.log_metric("pr_auc", pr_auc)
-            mlflow.sklearn.log_model(best_model, "model")
+            # Log model as artifact only — no registry
+            mlflow.sklearn.log_model(
+                sk_model=best_model,
+                artifact_path="model"
+            )
 
     joblib.dump(best_model, "models/best_model.pkl")
     print("All metrics logged and model saved.")
-
 
 if __name__ == "__main__":
     main()
