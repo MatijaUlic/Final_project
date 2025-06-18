@@ -30,7 +30,8 @@ jobs:
           pip install flake8
 
       - name: Run tests
-        run: pytest -q --disable-warnings
+        run: |
+          PYTHONPATH=. pytest -q --disable-warnings
 
       - name: Lint with flake8
         run: flake8 .
@@ -39,10 +40,10 @@ jobs:
         run: echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> $GITHUB_ENV
 
       - name: Train & tune model
-        run: python -m src.tune_and_train
+        run: PYTHONPATH=. python -m src.tune_and_train
 
       - name: Run batch prediction
-        run: python -m src.predict
+        run: PYTHONPATH=. python -m src.predict
 
       - name: Upload trained model
         uses: actions/upload-artifact@v4
