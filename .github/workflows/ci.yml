@@ -3,10 +3,12 @@ name: CI + CD Pipeline
 on:
   push:
     branches:
-      - feature/full-pipeline
+      - feature/mlflow-cd
+      - main
   pull_request:
     branches:
-      - feature/full-pipeline
+      - feature/mlflow-cd
+      - main
 
 jobs:
   build:
