@@ -16,4 +16,4 @@ batch_prediction_dataset/results.csv
 batch_prediction_dataset/report.txt
 
 # Common OS files
-.DS_Store
+.DS_Storemlartifacts/
