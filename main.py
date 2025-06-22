@@ -5,7 +5,9 @@ import sys
 def run_module(module_name):
     cmd = [sys.executable, "-m", module_name]
     result = subprocess.run(
-        cmd, capture_output=True, text=True, encoding="utf-8", errors="replace"
+        cmd, capture_output=True,
+          text=True,    encoding="utf-8",
+            errors="replace"
     )
     print(result.stdout, end="")
     if result.returncode != 0:
