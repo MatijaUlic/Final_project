@@ -17,10 +17,6 @@ def main():
     print("Starting hyperparameter tuning & training...")
     run_module("src.tune_and_train")
     print("\nCompleted training. Now running batch predictions...\n")
-
-
-
-    
     run_module("src.predict")
     print("\nAll steps completed successfully.")  # <-- Only ASCII
 
